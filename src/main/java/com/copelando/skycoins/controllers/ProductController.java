@@ -62,4 +62,15 @@ public class ProductController {
     long getCount() {
         return productRepository.count();
     }
+
+    @GetMapping("/product-cap")
+    double getProductCap() {
+        return productRepository
+            .findAll()
+            .stream()
+            .map(product ->
+                product.getLatestProductEntry().getSellPrice() * product.getLatestProductEntry().getSellVolume()
+            )
+            .reduce(0.0, Double::sum);
+    }
 }
