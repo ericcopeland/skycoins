@@ -5,5 +5,4 @@ import org.springframework.stereotype.Service;
 
 @Service
 @EnableScheduling
-public class ScheduledStatisticService {
-}
+public class ScheduledStatisticService { }

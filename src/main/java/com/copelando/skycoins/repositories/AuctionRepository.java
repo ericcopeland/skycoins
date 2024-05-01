@@ -28,6 +28,7 @@ public interface AuctionRepository extends JpaRepository<Auction, UUID> {
             and (:minPetLevel is null or a.decodedItemBytes.petLevel >= :minPetLevel)
             and (:maxPetLevel is null or a.decodedItemBytes.petLevel <= :maxPetLevel)
             and (:tiers is null or a.decodedItemBytes.rarity in :tiers)
+        order by a.createDate desc
     """)
     List<Auction> findAuctions(
             String itemId,

@@ -73,4 +73,13 @@ public class ProductController {
             )
             .reduce(0.0, Double::sum);
     }
+
+    @PutMapping("/{id}/views")
+    Product putProductViews(@PathVariable String id) {
+        var product = productRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        product.setViews(product.getViews() + 1);
+        return productRepository.save(product);
+    }
 }

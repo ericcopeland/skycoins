@@ -37,4 +37,6 @@ public class Product {
 
     @OneToOne
     private ProductEntry referenceProductEntry;
+
+    private long views;
 }

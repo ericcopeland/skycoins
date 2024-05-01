@@ -41,8 +41,8 @@ public class AuctionController {
             @RequestParam Optional<Integer> petLevel,
             @RequestParam Optional<Integer> minPetLevel,
             @RequestParam Optional<Integer> maxPetLevel,
-            @RequestParam Optional<Integer> limit,
-            @RequestParam Optional<String[]> tiers
+            @RequestParam Optional<String[]> tiers,
+            @RequestParam Optional<Integer> limit
     ) {
         return auctionRepository.findAuctions(
                 itemId.orElse(null),

@@ -21,7 +21,17 @@ public class StatisticController {
     }
 
     @GetMapping("/{type}")
-    public List<Statistic> getStatistic(@PathVariable String type) {
+    public List<Statistic> getStatistics(@PathVariable String type) {
         return statisticRepository.findByType(type);
+    }
+
+    @GetMapping("/{type}/newest")
+    public Statistic getNewestStatistic(@PathVariable String type) {
+        return statisticRepository.findTopByTypeOrderByCreateDateDesc(type);
+    }
+
+    @GetMapping("/{type}/oldest")
+    public Statistic getOldestStatistic(@PathVariable String type) {
+        return statisticRepository.findTopByTypeOrderByCreateDateAsc(type);
     }
 }
