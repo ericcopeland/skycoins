@@ -1,4 +1,4 @@
-package com.copelando.skycoins.services.responses.auction;
+package com.copelando.skycoins.responses.auction;
 
 public class AuctionEndedResponse {
     public String auction_id;

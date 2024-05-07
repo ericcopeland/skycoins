@@ -1,4 +1,4 @@
-package com.copelando.skycoins.services.responses.item;
+package com.copelando.skycoins.responses.item;
 
 public class ItemResponse {
     public String id;

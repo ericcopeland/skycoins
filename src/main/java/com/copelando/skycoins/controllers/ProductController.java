@@ -3,10 +3,10 @@ package com.copelando.skycoins.controllers;
 import com.copelando.skycoins.models.Product;
 import com.copelando.skycoins.models.ProductEntry;
 import com.copelando.skycoins.repositories.ProductRepository;
+import com.copelando.skycoins.services.ProductEntryService;
+import com.copelando.skycoins.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,12 +16,18 @@ import java.util.Optional;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
+    private final ProductService productService;
+    private final ProductEntryService productEntryService;
 
     @Autowired
     public ProductController(
-            ProductRepository productRepository
+            ProductRepository productRepository,
+            ProductService productService,
+            ProductEntryService productEntryService
     ) {
         this.productRepository = productRepository;
+        this.productService = productService;
+        this.productEntryService = productEntryService;
     }
 
     @GetMapping
@@ -31,8 +37,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     Product getProduct(@PathVariable String id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return productService.getProduct(id);
     }
 
     @GetMapping("/{id}/product-entries")
@@ -41,21 +46,22 @@ public class ProductController {
             @RequestParam Optional<Instant> fromDate,
             @RequestParam Optional<Instant> toDate
     ) {
-        var productEntries = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
-                .getProductEntries().stream();
+        return productEntryService.getProductEntries(id, fromDate, toDate);
+    }
 
-        if (fromDate.isPresent()) {
-            productEntries = productEntries
-                    .filter(productEntry -> productEntry.getCreateDate().isAfter(fromDate.get()));
-        }
+    @GetMapping("/trending")
+    List<Product> getTrendingProducts() {
+        return productService.getTrendingProducts();
+    }
 
-        if (toDate.isPresent()) {
-            productEntries = productEntries
-                    .filter(productEntry -> productEntry.getCreateDate().isBefore(toDate.get()));
-        }
+    @GetMapping("/most-viewed")
+    List<Product> getMostViewedProducts() {
+        return productService.getMostViewedProducts();
+    }
 
-        return productEntries.toList();
+    @GetMapping("/recently-added")
+    List<Product> getRecentlyAddedProducts() {
+        return productService.getRecentlyAddedProducts();
     }
 
     @GetMapping("/count")
@@ -63,22 +69,9 @@ public class ProductController {
         return productRepository.count();
     }
 
-    @GetMapping("/product-cap")
-    double getProductCap() {
-        return productRepository
-            .findAll()
-            .stream()
-            .map(product ->
-                product.getLatestProductEntry().getSellPrice() * product.getLatestProductEntry().getSellVolume()
-            )
-            .reduce(0.0, Double::sum);
-    }
-
     @PutMapping("/{id}/views")
     Product putProductViews(@PathVariable String id) {
-        var product = productRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
+        var product = productService.getProduct(id);
         product.setViews(product.getViews() + 1);
         return productRepository.save(product);
     }

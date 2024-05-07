@@ -1,9 +1,10 @@
-package com.copelando.skycoins.services;
+package com.copelando.skycoins.services.scheduled;
 
 import com.copelando.skycoins.models.Item;
 import com.copelando.skycoins.repositories.ItemRepository;
-import com.copelando.skycoins.services.responses.item.ItemResponseWrapper;
+import com.copelando.skycoins.responses.item.ItemResponseWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @EnableScheduling
+@ConditionalOnProperty("skycoins.service.scheduled.enabled")
 public class ScheduledItemService {
     private final WebClient hypixelApiClient;
     private final ItemRepository itemRepository;

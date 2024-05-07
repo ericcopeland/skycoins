@@ -1,4 +1,4 @@
-package com.copelando.skycoins.services;
+package com.copelando.skycoins.services.scheduled;
 
 import com.copelando.skycoins.models.Auction;
 import com.copelando.skycoins.models.AuctionItemBytes;
@@ -6,11 +6,12 @@ import com.copelando.skycoins.models.Statistic;
 import com.copelando.skycoins.repositories.AuctionRepository;
 import com.copelando.skycoins.repositories.ItemRepository;
 import com.copelando.skycoins.repositories.StatisticRepository;
-import com.copelando.skycoins.services.responses.auction.AuctionEndedResponseWrapper;
+import com.copelando.skycoins.responses.auction.AuctionEndedResponseWrapper;
 import com.copelando.skycoins.utility.Converter;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.tag.CompoundTag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 
 @Service
 @EnableScheduling
+@ConditionalOnProperty("skycoins.service.scheduled.enabled")
 public class ScheduledAuctionService {
     private final WebClient hypixelApiClient;
     private final AuctionRepository auctionRepository;
@@ -48,7 +50,7 @@ public class ScheduledAuctionService {
         this.statisticRepository = statisticRepository;
     }
 
-    @Scheduled(fixedRate = 1000 * 60)
+    @Scheduled(fixedRate = 1000 * 60, initialDelay = 1000 * 60)
     public void retrieveRecentlyEndedAuctions() {
         var response = hypixelApiClient.get()
             .uri("/skyblock/auctions_ended")

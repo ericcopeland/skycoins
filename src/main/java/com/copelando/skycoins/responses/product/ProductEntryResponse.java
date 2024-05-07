@@ -1,4 +1,4 @@
-package com.copelando.skycoins.services.responses.product;
+package com.copelando.skycoins.responses.product;
 
 public class ProductEntryResponse {
     public String product_id;

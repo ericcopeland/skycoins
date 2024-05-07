@@ -1,12 +1,15 @@
-package com.copelando.skycoins.services;
+package com.copelando.skycoins.services.scheduled;
 
 import com.copelando.skycoins.models.*;
 import com.copelando.skycoins.repositories.ItemRepository;
 import com.copelando.skycoins.repositories.ProductEntryRepository;
 import com.copelando.skycoins.repositories.ProductRepository;
 import com.copelando.skycoins.repositories.StatisticRepository;
-import com.copelando.skycoins.services.responses.product.ProductResponse;
+import com.copelando.skycoins.responses.product.ProductResponse;
+import com.copelando.skycoins.services.ProductEntryService;
+import com.copelando.skycoins.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,15 +17,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Service
 @EnableScheduling
+@ConditionalOnProperty("skycoins.service.scheduled.enabled")
 public class ScheduledProductService {
     private final WebClient hypixelApiClient;
     private final ProductRepository productRepository;
     private final ProductEntryRepository productEntryRepository;
     private final ItemRepository itemRepository;
     private final StatisticRepository statisticRepository;
+    private final ProductService productService;
+    private final ProductEntryService productEntryService;
 
     @Autowired
     public ScheduledProductService(
@@ -30,16 +37,20 @@ public class ScheduledProductService {
             ProductRepository productRepository,
             ProductEntryRepository productEntryRepository,
             ItemRepository itemRepository,
-            StatisticRepository statisticRepository
+            StatisticRepository statisticRepository,
+            ProductService productService,
+            ProductEntryService productEntryService
     ) {
         this.hypixelApiClient = hypixelApiClient;
         this.productRepository = productRepository;
         this.productEntryRepository = productEntryRepository;
         this.itemRepository = itemRepository;
         this.statisticRepository = statisticRepository;
+        this.productService = productService;
+        this.productEntryService = productEntryService;
     }
 
-    @Scheduled(fixedRate = 1000 * 60)
+    @Scheduled(fixedRate = 1000 * 60 * 10, initialDelay = 1000 * 60)
     public void retrieveProductEntries() {
         var response = hypixelApiClient.get()
                 .uri("/skyblock/bazaar")
@@ -80,7 +91,14 @@ public class ScheduledProductService {
             if (product.getReferenceProductEntry() == null) {
                 product.setReferenceProductEntry(productEntry);
             } else if (product.getReferenceProductEntry().getCreateDate().isBefore(Instant.now().minus(12, ChronoUnit.HOURS))) {
-                product.setReferenceProductEntry(productEntry);
+                var productEntries = productEntryService.getProductEntries(
+                    product.getId(),
+                    Optional.of(Instant.now().minus(12, ChronoUnit.HOURS)),
+                    Optional.of(Instant.now().minus(11, ChronoUnit.HOURS))
+                );
+                if (productEntries.size() > 0) {
+                    product.setReferenceProductEntry(productEntries.get(0));
+                }
             }
             product.setLatestProductEntry(productEntry);
 
