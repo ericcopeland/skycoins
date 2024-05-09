@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface StatisticRepository extends JpaRepository<Statistic, UUID> {
-    List<Statistic> findByType(String type);
+    List<Statistic> findByTypeOrderByCreateDateAsc(String type);
 
     Statistic findTopByTypeOrderByCreateDateDesc(String type);
 

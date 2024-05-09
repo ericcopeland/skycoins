@@ -11,7 +11,8 @@ public class WebController {
         "/products/**",
         "/auctions",
         "/auctions/**",
-        "/statistics"
+        "/statistics",
+        "/favorites"
     })
     String index() {
         return "index";

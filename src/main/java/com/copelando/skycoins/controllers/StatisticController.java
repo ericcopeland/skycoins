@@ -22,7 +22,7 @@ public class StatisticController {
 
     @GetMapping("/{type}")
     public List<Statistic> getStatistics(@PathVariable String type) {
-        return statisticRepository.findByType(type);
+        return statisticRepository.findByTypeOrderByCreateDateAsc(type);
     }
 
     @GetMapping("/{type}/newest")

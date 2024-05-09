@@ -12,6 +12,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Table(indexes = {
+    @Index(columnList = "createDate", name = "product_entry_create_date")
+})
 public class ProductEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
